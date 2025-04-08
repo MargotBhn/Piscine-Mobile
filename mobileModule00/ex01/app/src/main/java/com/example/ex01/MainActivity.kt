@@ -36,7 +36,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Ex01Theme {
-
                 Greeting()
             }
         }
