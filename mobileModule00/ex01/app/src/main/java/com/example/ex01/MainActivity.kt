@@ -1,7 +1,6 @@
 package com.example.ex01
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,7 +14,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.example.ex01.ui.theme.Ex01Theme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 class MainActivity : ComponentActivity() {
@@ -44,8 +43,11 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting() {
-    var welcomeText by remember {  mutableStateOf("Hello")}
-    var count by remember { mutableIntStateOf(0) }
+    // remember resets its value on configuration changes (e.g., screen rotation)
+    // Use rememberSaveable to preserve state across those changes
+
+    var welcomeText by rememberSaveable {  mutableStateOf("Hello")}
+    var count by rememberSaveable { mutableIntStateOf(0) }
 
     Column (
         modifier = Modifier
@@ -64,15 +66,8 @@ fun Greeting() {
         )
         Button(
             onClick = {
-                Log.d("test button","Button pressed")
                 count++
-                if (count % 2 == 0) {
-                    welcomeText = "Hello"
-                } else {
-                    welcomeText = "Hello World"
-                }
-
-
+                welcomeText = if (count % 2 == 0) "Hello" else "Hello World"
                       },
             modifier = Modifier.size(160.dp, 60.dp),
             shape = RoundedCornerShape(50)
