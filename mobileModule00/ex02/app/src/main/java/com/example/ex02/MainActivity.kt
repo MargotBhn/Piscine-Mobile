@@ -10,11 +10,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -27,11 +31,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ex02.ui.theme.Ex02Theme
+import kotlin.String
+import kotlin.collections.List
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +44,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Ex02Theme {
-                Calculator()
+                CalculatorLayout()
             }
         }
     }
@@ -47,7 +52,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Calculator () {
+fun CalculatorLayout () {
     var calcultorList = listOf(
         listOf("7", "8", "9", "C", "AC"),
         listOf("4", "5", "6", "+", "-"),
@@ -92,18 +97,7 @@ fun Calculator () {
                 contentAlignment = Alignment.CenterEnd
 
             ) {
-                Column()
-                {
-                    Text(
-                        text = "0",
-                        fontSize = 35.sp
-                    )
-
-                    Text(
-                        text = "0",
-                        fontSize = 35.sp
-                    )
-                }
+                CalculatorDisplay()
             }
             Spacer(
                 modifier = Modifier
@@ -117,26 +111,70 @@ fun Calculator () {
                 verticalArrangement = Arrangement.Bottom
             ) {
 
-                calcultorList.forEach { ligne ->
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        ligne.forEach { buttonName ->
-                            CalculatorButton(buttonName)
-                        }
-                    }
-                }
+                CalculatorKeypad(calcultorList)
             }
         }
     }
 }
 
 @Composable
-fun CalculatorButton (buttonName : String) {
+fun CalculatorDisplay (){
+    Column()
+    {
+        Text(
+            text = "0",
+            fontSize = 35.sp
+        )
+
+        Text(
+            text = "0",
+            fontSize = 35.sp
+        )
+    }
+}
+
+@Composable
+fun CalculatorKeypad(
+    calcultorList: List<List<String>>
+){
+    calcultorList.forEachIndexed { index, ligne ->
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 4.dp)
+        ) {
+            ligne.forEach { buttonName ->
+
+                if(buttonName == "=") {
+                    CalculatorButton(
+                        modifier = Modifier
+                            .weight(2f)
+                            .aspectRatio(2f),
+                        buttonName = buttonName
+                    )
+                }
+                else{
+                    CalculatorButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .aspectRatio(1f),
+                        buttonName = buttonName
+                    )
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+fun CalculatorButton (buttonName: String, modifier: Modifier) {
    androidx.compose.material3.Button(
-       onClick = {Log.d("test","$buttonName was pressed")}
+       onClick = {Log.d("test","$buttonName was pressed")},
+       modifier = modifier,
+       shape = RoundedCornerShape(20.dp),
+       contentPadding = PaddingValues(10.dp)
    ) {
        Text(text = buttonName)
    }
@@ -149,6 +187,6 @@ fun CalculatorButton (buttonName : String) {
 @Composable
 fun GreetingPreview() {
     Ex02Theme {
-         Calculator()
+         CalculatorLayout()
     }
 }
