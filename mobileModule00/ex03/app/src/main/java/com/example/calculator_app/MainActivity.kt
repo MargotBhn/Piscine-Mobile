@@ -29,9 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calculator_app.ui.theme.Calculator_appTheme
 
 class MainActivity : ComponentActivity() {
@@ -48,7 +51,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalculatorLayout () {
+fun CalculatorLayout (viewModel: CalculatorViewModel = viewModel()) {
     val calculatorList = listOf(
         listOf("7", "8", "9", "C", "AC"),
         listOf("4", "5", "6", "+", "-"),
@@ -61,6 +64,7 @@ fun CalculatorLayout () {
 
     val displayWeight = if (isPortrait) 0.5f else 0.4f
     val keypadWeight = if (isPortrait) 0.5f else 0.6f
+
 
     Scaffold(
         topBar = {
@@ -96,7 +100,10 @@ fun CalculatorLayout () {
                     .padding(16.dp),
 
                 ) {
-                CalculatorDisplay()
+                CalculatorDisplay(
+                   viewModel.resultValue,
+                   viewModel.enteredValue
+                )
             }
             Box(
                 modifier = Modifier
@@ -112,7 +119,10 @@ fun CalculatorLayout () {
 }
 
 @Composable
-fun CalculatorDisplay (){
+fun CalculatorDisplay (
+    enteredValue: String,
+    resultValue: String
+){
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
@@ -130,16 +140,19 @@ fun CalculatorDisplay (){
     )
     {
         Text(
-            text = "0",
+            text = enteredValue,
             maxLines = 2,
             fontSize = adaptiveFontSizeCalculation,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.End
+
         )
 
         Text(
-            text = "0",
+            text = resultValue,
             fontSize = adaptiveFontSizeResult,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.End
         )
     }
 }
@@ -166,9 +179,9 @@ fun CalculatorKeypad(
                             .fillMaxHeight()
                     ){
                         CalculatorButton(
+                            buttonName,
                             modifier = Modifier
-                                .fillMaxSize(),
-                            buttonName = buttonName
+                                .fillMaxSize()
                         )
                     }
                 }
@@ -178,7 +191,10 @@ fun CalculatorKeypad(
 }
 
 @Composable
-fun CalculatorButton (buttonName: String, modifier: Modifier) {
+fun CalculatorButton (buttonName: String,
+                      modifier: Modifier,
+                      viewModel: CalculatorViewModel = viewModel()
+) {
     val buttonColor = when (buttonName) {
         "C", "AC" -> MaterialTheme.colorScheme.errorContainer
         "+", "-", "x", "/" -> MaterialTheme.colorScheme.secondaryContainer
@@ -192,7 +208,10 @@ fun CalculatorButton (buttonName: String, modifier: Modifier) {
     val adaptiveFontSize = (minOf(screenWidth, screenHeight) / 30).sp
 
     androidx.compose.material3.Button(
-        onClick = { Log.d("test", "$buttonName was pressed") },
+        onClick = {
+            Log.d("test", "$buttonName was pressed")
+            viewModel.checkSyntax(buttonName)
+        },
         modifier = modifier
             .fillMaxWidth(),
         shape = CircleShape,
